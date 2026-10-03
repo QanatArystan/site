@@ -1,8 +1,27 @@
 from fastapi import FastAPI, Form, HTTPException
 from pydantic import BaseModel
-from typing import List  
+from typing import List
+from argon2 import PasswordHasher
+import connect
+
+import sqlite3
+
+create_table = '<create_table_statement>'
+sql_statements = [
+    """CREATE TABLE IF NOT EXISTS users (
+    username TEXT PRIMARY KEY,
+    salt TEXT NOT NULL,
+    password TEXT NOT NULL
+);"""
+]
 
 app = FastAPI()
+
+ph = PasswordHasher()
+
+connect.create_db()
+
+
 
 class user_info(BaseModel):
     username: str
@@ -24,5 +43,4 @@ async def registration(username: str = Form(...), password: str = Form(...)):
         raise HTTPException(status_code=404, detail="Invalid username")
     users.append(username)
     return "Successfully registered"
-
 
