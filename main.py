@@ -1,10 +1,7 @@
 from fastapi import FastAPI, Form, HTTPException
 from pydantic import BaseModel
-from typing import List
 from argon2 import PasswordHasher
 import connect
-
-import sqlite3
 
 create_table = '<create_table_statement>'
 sql_statements = [
@@ -19,7 +16,7 @@ app = FastAPI()
 
 ph = PasswordHasher()
 
-connect.create_db()
+connect.create_db("test.db")
 
 
 
@@ -28,7 +25,7 @@ class user_info(BaseModel):
     password: str
 
 
-users = []
+users: list[str] = []
 
 @app.post("/login")
 async def login(username: str = Form(...), password: str = Form(...)):
