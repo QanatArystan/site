@@ -1,19 +1,21 @@
 import sqlite3
+from fastapi import HTTPException
 
 create_table = '<create_table_statement>'
 sql_statements = [
     """CREATE TABLE IF NOT EXISTS users (
-    username TEXT PRIMARY KEY,
-    password TEXT NOT NULL
+    id TEXT PRIMARY KEY,
+    username TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL
 );"""
 ]
 
 
 
 #To be fixed
-def create_user(db: str, data: tuple[str, str]) -> bool:
-    sql = ''' INSERT INTO users(username, password)
-              VALUES(?,?) '''
+def create_user(db: str, data: tuple[str, str, str]) -> bool:
+    sql = ''' INSERT INTO users(id,username, password_hash)
+              VALUES(?,?,?) '''
     try:
         # The 'with' context manager automatically commits if successful
         with sqlite3.connect(db) as conn:
@@ -24,10 +26,12 @@ def create_user(db: str, data: tuple[str, str]) -> bool:
             print("User created successfully")
             return True
 
-    except sqlite3.OperationalError as e:
-        print("Failed to open or write to database:", e)
-        return False
-
+    except sqlite3.IntegrityError:
+        raise HTTPException(
+            status_code=409,
+            detail="Username already exists"
+        )
+        
 
 
 
